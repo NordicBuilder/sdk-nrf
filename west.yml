@@ -43,7 +43,7 @@ manifest:
   defaults:
     remote: ncs
 
-  group-filter: [-homekit, -nrf-802154, -dragoon, -find-my, -ant, -babblesim, -sidewalk]
+  group-filter: [-homekit, -nrf-802154, -dragoon, -find-my, -ant, -babblesim, -doc-internal]
 
   # "projects" is a list of git repositories which make up the NCS
   # source code.
@@ -58,8 +58,8 @@ manifest:
     # https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/introduction/index.html
     # https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/zephyr/guides/modules.html
     - name: zephyr
-      repo-path: sdk-zephyr
-      revision: c7094146b5b47fd4da05ed773e0128e2e6a634e1
+      repo-path: sdk-zephyr-next
+      revision: 2b0c745b8e004ba57491047f77dd12ac01af572f
       import:
         # In addition to the zephyr repository itself, NCS also
         # imports the contents of zephyr/west.yml at the above
@@ -77,9 +77,9 @@ manifest:
           - canopennode
           - chre
           - cmsis
+          - coremark
           - edtt
           - fatfs
-          - hal_nordic
           - hal_st # required for ST sensors (unrelated to STM32 MCUs)
           - hal_wurthelektronik
           - liblc3
@@ -95,7 +95,9 @@ manifest:
           - open-amp
           - picolibc
           - psa-arch-tests
+          - sdk-hal_nordic-next
           - segger
+          - tinycbor
           - tinycrypt
           - tf-m-tests
           - uoscore-uedhoc
@@ -109,24 +111,15 @@ manifest:
     - name: hostap
       repo-path: sdk-hostap
       path: modules/lib/hostap
-      revision: 44c4504d1549ab0f6dda503050ad5ca2654d0f91
+      revision: f69440dae3aa517da786c8e95e61eaae8f42f684
       userdata:
         ncs:
           upstream-url: https://w1.fi/cgit/hostap/
           upstream-sha: e792f38db8471f35ee94f109a4093dece8f78c6a
-          compare-by-default: true
-    - name: wfa-qt-control-app
-      repo-path: sdk-wi-fiquicktrack-controlappc
-      path: modules/lib/wfa-qt-control-app
-      revision: 238a291701169cc1be56ee8ad7538436fe1c6470
-      userdata:
-        ncs:
-          upstream-url: https://github.com/Wi-FiQuickTrack/Wi-FiQuickTrack-ControlAppC
-          upstream-sha: 1225729e8d84075f03bf9fc51eee85d84dfb0091
           compare-by-default: false
     - name: mcuboot
       repo-path: sdk-mcuboot
-      revision: 8fe7070ee192f8e72a9a67560cee9e3518155579
+      revision: v1.10.0-ncs1
       path: bootloader/mcuboot
     - name: qcbor
       url: https://github.com/laurencelundblade/QCBOR.git
@@ -137,17 +130,39 @@ manifest:
       repo-path: sdk-mbedtls
       revision: v3.3.0-ncs1
     - name: nrfxlib
-      repo-path: sdk-nrfxlib
+      repo-path: sdk-nrfxlib-next
       path: nrfxlib
-      revision: ae69502a63b91172517c1755a82de553cd40ea68
+      revision: pull/1/head
+    - name: doc-internal
+      repo-path: doc-internal
+      path: modules/doc-internal
+      revision: 633fef37d651ee9f0e40e54ef0e0f17201a467ae
+      groups:
+      - doc-internal
+    - name: ic-next
+      repo-path: sdk-ic-next
+      path: modules/ic-next
+      revision: 91b80741ae62867189691536a7d9b1d729160123
+    - name: sdk-secdom
+      revision: f723aff568fcd7c4530c27742e11e12fe2e71f2f
+      path: core_fw/secdom
+    - name: nrf-regtool
+      revision: d4e54dfae86de1e8c8bf652b0f76818751756d16
+      path: modules/lib/nrf-regtool
+    - name: nrfs
+      path: modules/lib/nrfs
+      revision: 32089d023fca5981dafa6f6942c709c97cfeaa56
+    - name: sdk-sysctrl
+      revision: 8af0db61477bf52c9945b892ff4355754f43123c
+      path: core_fw/sysctrl
     - name: trusted-firmware-m
-      repo-path: sdk-trusted-firmware-m
+      repo-path: sdk-trusted-firmware-m-next
       path: modules/tee/tf-m/trusted-firmware-m
-      revision: 6ad9c58f9bd55f386970533d0c9942dabe122945
+      revision: a4b8e30daefc84775622a45c623c500225ed7726
     - name: matter
-      repo-path: sdk-connectedhomeip
+      repo-path: sdk-connectedhomeip-next
       path: modules/lib/matter
-      revision: eeb7280620fff1e16a75cfa41338186fd952c432
+      revision: 893b8434058fc8b3ae0faaacb4c4e0d1e4cfee67
       submodules:
         - name: nlio
           path: third_party/nlio/repo
@@ -165,14 +180,14 @@ manifest:
     - name: nrf-802154
       repo-path: sdk-nrf-802154
       path: nrf-802154
-      revision: 1ec9da9e0f8239a48123ea96222ee8a310875903
+      revision: f9a076d4a36b68622b3e3add3ff9596f8d32c3de
       groups:
         - nrf-802154
     - name: dragoon
       # Only for internal Nordic development
       repo-path: dragoon.git
       remote: dragoon
-      revision: b69814befbe22fa05235af15bd4823d59e7bc4e5
+      revision: 3db178f15035b5ebd87ab3b3dd3bfdc68fb7465a
       submodules: true
       groups:
         - dragoon
@@ -185,20 +200,14 @@ manifest:
           upstream-url: https://github.com/DaveGamble/cJSON
           upstream-sha: d2735278ed1c2e4556f53a7a782063b31331dbf7
           compare-by-default: false
-    - name: sidewalk
-      repo-path: sdk-sidewalk
-      revision: 43e8810600722e2338518b3027bb8af38cf786b5
-      submodules: true
-      groups:
-        - sidewalk
     - name: homekit
       repo-path: sdk-homekit
-      revision: 216d6588d069390d2c5291560002ca47684fbfc0
+      revision: 2ecf5993ca6f4662517e4e287aec0eb979962112
       groups:
         - homekit
     - name: find-my
-      repo-path: sdk-find-my
-      revision: c30e0186e6476e439ffdbf83ebb421662031cbd1
+      repo-path: sdk-find-my-next
+      revision: def810192df5b786fb549e49287364d0022175b4
       groups:
         - find-my
     - name: azure-sdk-for-c
@@ -222,12 +231,19 @@ manifest:
     - name: openthread
       repo-path: sdk-openthread
       path: modules/lib/openthread
-      revision: c10f650468fd5984b474de707fc2eae5f9234fdc
+      revision: d9abe3071c0131a4adb5d7e7451319b735e6d855
       userdata:
         ncs:
           upstream-url: https://github.com/openthread/openthread
-          upstream-sha: 650e30f81ccfd798409d459a86fb1ed575b5144a
+          upstream-sha: d9abe3071c0131a4adb5d7e7451319b735e6d855
           compare-by-default: false
+
+    - name: suit-processor
+      revision: 7c21a9192ba1c94c86c380023754467de55b429e
+      path: modules/lib/suit-processor
+    - name: suit-generator
+      revision: d8a443a01d89ffb15817336a9ec0d77ae2f96409
+      path: modules/lib/suit-generator
 
     # Other third-party repositories.
     - name: cmock
@@ -248,7 +264,7 @@ manifest:
     - name: bsim
       repo-path: bsim_west
       remote: babblesim
-      revision: 384a091445c57b44ac8cbd18ebd245b47c71db94
+      revision: 908ffde6298a937c6549dbfa843a62caab26bfc5
       import:
         path-prefix: tools
 
