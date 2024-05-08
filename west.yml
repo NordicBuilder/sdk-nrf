@@ -135,6 +135,9 @@ manifest:
       revision: 6772a02195b9150f7c659275c50141237d1e6799
       groups:
       - nrf-802154
+    - name: github-action-testing
+      repo-path: github-action-testing
+      revision: first_rev
     - name: cjson
       repo-path: sdk-cjson
       path: modules/lib/cjson
