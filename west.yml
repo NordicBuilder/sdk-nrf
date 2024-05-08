@@ -134,10 +134,10 @@ manifest:
       path: nrf-802154
       revision: 6772a02195b9150f7c659275c50141237d1e6799
       groups:
-      - nrf-802154
+        - nrf-802154
     - name: github-action-testing
       repo-path: github-action-testing
-      revision: first_rev
+      revision: pull/66/head
     - name: cjson
       repo-path: sdk-cjson
       path: modules/lib/cjson
@@ -146,12 +146,12 @@ manifest:
       repo-path: sdk-homekit
       revision: 394c24fd6d7be826ffcded78ef005de254b69fac
       groups:
-      - homekit
+        - homekit
     - name: find-my
       repo-path: sdk-find-my
       revision: 032b266e0111c309acff59704585797ff081d713
       groups:
-      - find-my
+        - find-my
     # Other third-party repositories.
     - name: cmock
       path: test/cmock
