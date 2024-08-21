@@ -6,6 +6,14 @@
 
 #include <zephyr/kernel.h>
 
+static void reset_work_handler(struct k_work *work);
+K_WORK_DELAYABLE_DEFINE(reset_work, reset_work_handler);
+
+static void reset_work_handler(struct k_work *work)
+{
+	k_oops();
+}
+
 int main(void)
 {
 	/* The only activity of this application is interaction with the APP
@@ -14,5 +22,6 @@ int main(void)
 	 * and start at system boot.
 	 */
 	printk("Entropy sample started[NET Core].\n");
+	k_work_schedule(&reset_work, K_SECONDS(10));
 	return 0;
 }
