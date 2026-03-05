@@ -217,13 +217,13 @@
   comment: "Configurations excluded to limit resources usage in integration builds"
 
 - scenarios:
-    - application.find_my.thingy.release
+    - applications.find_my.thingy.release
   platforms:
     - thingy53/nrf5340/cpuapp/ns
   comment: "Configurations excluded to limit resources usage in integration builds"
 
 - scenarios:
-    - test.find_my.crypto
+    - find_my.crypto
   platforms:
     - nrf54l15dk/nrf54l10/cpuapp
     - nrf54l15dk/nrf54l15/cpuapp
