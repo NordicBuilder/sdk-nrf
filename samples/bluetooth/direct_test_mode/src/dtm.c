@@ -37,13 +37,13 @@
 #include <helpers/nrfx_gppi.h>
 #include <nrfx_timer.h>
 
-#if NRF54L_ERRATA_20_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54L, 20)
 #include <hal/nrf_power.h>
-#endif /* NRF54L_ERRATA_20_PRESENT */
+#endif /* #if NRF_ERRATA_STATIC_CHECK(54L, 20) */
 
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 #include <zephyr/drivers/mbox.h>
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* #if NRF_ERRATA_STATIC_CHECK(54H, 216) */
 
 #if defined(CONFIG_SOC_SERIES_NRF54H)
 	#define DEFAULT_TIMER_INSTANCE            020
@@ -74,13 +74,13 @@
 
 /* Note that the timer instance 2 is used in the FEM driver. */
 
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 /* Timer used for the workaround for errata 172 on affected nRF5 devices. */
 #define ANOMALY_172_TIMER_INSTANCE     3
 #define ANOMALY_172_TIMER_IRQ          NRFX_CONCAT_3(TIMER,		    \
 						ANOMALY_172_TIMER_INSTANCE, \
 						_IRQn)
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 
 #define DTM_EGU_EVENT NRF_EGU_EVENT_TRIGGERED0
 #define DTM_EGU_TASK  NRF_EGU_TASK_TRIGGER0
@@ -385,13 +385,13 @@ static struct dtm_instance {
 	/* Timer to be used for scheduling TX packets. */
 	nrfx_timer_t timer;
 
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 	/* Timer to be used to handle Anomaly 172. */
 	nrfx_timer_t anomaly_timer;
 
 	/* Enable or disable the workaround for Errata 172. */
 	bool anomaly_172_wa_enabled;
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 
 	/* Enable or disable strict mode to workaround Errata 172. */
 	bool strict_mode;
@@ -420,9 +420,9 @@ static struct dtm_instance {
 	.packet_hdr_plen = NRF_RADIO_PREAMBLE_LENGTH_8BIT,
 	.address = DTM_RADIO_ADDRESS,
 	.timer = NRFX_TIMER_INSTANCE(NRF_TIMER_INST_GET(DEFAULT_TIMER_INSTANCE)),
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 	.anomaly_timer = NRFX_TIMER_INSTANCE(NRF_TIMER_INST_GET(ANOMALY_172_TIMER_INSTANCE)),
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 	.radio_mode = NRF_RADIO_MODE_BLE_1MBIT,
 	.txpower = 0,
 #if CONFIG_FEM
@@ -430,12 +430,12 @@ static struct dtm_instance {
 #endif
 };
 
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 static const struct mbox_dt_spec on_channel =
 	MBOX_DT_SPEC_GET(DT_NODELABEL(cpurad_cpusys_errata216_mboxes), on_req);
 static const struct mbox_dt_spec off_channel =
 	MBOX_DT_SPEC_GET(DT_NODELABEL(cpurad_cpusys_errata216_mboxes), off_req);
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 
 /* Delay time from triggering the task "ON" for SysCtrl to starting RADIO (setting RADIO TASK RXEN
  * or TXEN)
@@ -456,7 +456,7 @@ static K_SEM_DEFINE(errata_216_sem, 0, 1);
  */
 static int errata_216_on_wait(void)
 {
-	if (!nrf54h_errata_216()) {
+	if (!NRF_ERRATA_DYNAMIC_CHECK(54H, 216)) {
 		return 0;
 	}
 
@@ -471,9 +471,9 @@ static int errata_216_on_wait(void)
 		nrfx_timer_us_to_ticks(&dtm_inst.timer, HMPAN_216_DELAY_US),
 		true);
 
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 	err = mbox_send_dt(&on_channel, NULL);
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 
 	if (!err) {
 		nrfx_timer_enable(&dtm_inst.timer);
@@ -496,15 +496,15 @@ static int errata_216_on_wait(void)
  */
 static int errata_216_off(void)
 {
-	if (!nrf54h_errata_216()) {
+	if (!NRF_ERRATA_DYNAMIC_CHECK(54H, 216)) {
 		return 0;
 	}
 
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 	return mbox_send_dt(&off_channel, NULL);
 #else
 	return 0;
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 }
 
 /**
@@ -512,7 +512,7 @@ static int errata_216_off(void)
  */
 static void errata_216_release(void)
 {
-	if (!nrf54h_errata_216()) {
+	if (!NRF_ERRATA_DYNAMIC_CHECK(54H, 216)) {
 		return;
 	}
 
@@ -711,9 +711,9 @@ static void radio_cte_prepare(bool rx)
 }
 #endif /* DIRECTION_FINDING_SUPPORTED */
 
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 static void anomaly_timer_handler(nrf_timer_event_t event_type, void *context);
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 
 static void dtm_timer_handler(nrf_timer_event_t event_type, void *context);
 static void radio_handler(const void *context);
@@ -748,11 +748,11 @@ static int clock_init(void)
 		}
 	} while (err);
 
-#if NRF54L_ERRATA_20_PRESENT
-	if (nrf54l_errata_20()) {
+#if NRF_ERRATA_STATIC_CHECK(54L, 20)
+	if (NRF_ERRATA_DYNAMIC_CHECK(54L, 20)) {
 		nrf_power_task_trigger(NRF_POWER, NRF_POWER_TASK_CONSTLAT);
 	}
-#endif /* NRF54L_ERRATA_20_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54L, 20) */
 
 #if defined(NRF54LM20A_XXAA)
 	nrf_clock_task_trigger(NRF_CLOCK, NRF_CLOCK_TASK_PLLSTART);
@@ -814,7 +814,7 @@ static int timer_init(void)
 	return 0;
 }
 
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 static int anomaly_timer_init(void)
 {
 	int err;
@@ -844,7 +844,7 @@ static int anomaly_timer_init(void)
 
 	return 0;
 }
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 
 static int gppi_init(void)
 {
@@ -1296,7 +1296,7 @@ int dtm_init(dtm_iq_report_callback_t callback)
 		return err;
 	}
 
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 	/* Enable the timer used by nRF52840 anomaly 172 if running on an
 	 * affected device.
 	 */
@@ -1304,7 +1304,7 @@ int dtm_init(dtm_iq_report_callback_t callback)
 	if (err) {
 		return err;
 	}
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 
 	err = gppi_init();
 	if (err) {
@@ -1511,7 +1511,7 @@ static bool check_pdu(const struct dtm_pdu *pdu)
 	return true;
 }
 
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 /* Radio configuration used as a workaround for nRF52840 anomaly 172 */
 static void anomaly_172_radio_operation(void)
 {
@@ -1565,7 +1565,7 @@ static void anomaly_172_strict_mode_set(bool enable)
 
 static void errata_172_handle(bool enable)
 {
-	if (!nrf52_errata_172()) {
+	if (!NRF_ERRATA_DYNAMIC_CHECK(52, 172)) {
 		return;
 	}
 
@@ -1584,11 +1584,11 @@ static void errata_172_handle(bool enable)
 {
 	ARG_UNUSED(enable);
 }
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 
 static void errata_117_handle(bool enable)
 {
-	if (!nrf53_errata_117()) {
+	if (!NRF_ERRATA_DYNAMIC_CHECK(53, 117)) {
 		return;
 	}
 
@@ -1601,7 +1601,7 @@ static void errata_117_handle(bool enable)
 
 static void errata_191_handle(bool enable)
 {
-	if (!nrf52_errata_191()) {
+	if (!NRF_ERRATA_DYNAMIC_CHECK(52, 191)) {
 		return;
 	}
 
@@ -1694,9 +1694,9 @@ static void dtm_test_done(void)
 
 	nrfx_timer_clear(&dtm_inst.timer);
 
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 	nrfx_timer_disable(&dtm_inst.anomaly_timer);
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 
 	radio_reset();
 
@@ -1778,12 +1778,12 @@ static void radio_prepare(bool rx)
 			NRF_RADIO_INT_END_MASK);
 
 	if (rx) {
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 		/* Enable strict mode for anomaly 172 */
 		if (dtm_inst.anomaly_172_wa_enabled) {
 			anomaly_172_strict_mode_set(true);
 		}
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 
 		nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_END);
 
@@ -1799,7 +1799,7 @@ static void radio_prepare(bool rx)
 	} else { /* tx */
 		radio_tx_power_set(dtm_inst.phys_ch, dtm_inst.txpower, dtm_inst.radio_mode);
 
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 		/* Stop the timer used by anomaly 172 */
 		if (dtm_inst.anomaly_172_wa_enabled) {
 			nrfx_timer_disable(&dtm_inst.anomaly_timer);
@@ -1810,7 +1810,7 @@ static void radio_prepare(bool rx)
 			nrf_timer_event_clear(dtm_inst.anomaly_timer.p_reg,
 					      NRF_TIMER_EVENT_COMPARE1);
 		}
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 	}
 }
 
@@ -2587,7 +2587,7 @@ static void on_radio_end_event(void)
 
 	radio_start(true, false);
 
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 	if (dtm_inst.anomaly_172_wa_enabled) {
 		nrfx_timer_compare(&dtm_inst.anomaly_timer,
 			NRF_TIMER_CC_CHANNEL0,
@@ -2608,7 +2608,7 @@ static void on_radio_end_event(void)
 		nrfx_timer_clear(&dtm_inst.anomaly_timer);
 		nrfx_timer_enable(&dtm_inst.anomaly_timer);
 	}
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 
 	if (nrf_radio_crc_status_check(NRF_RADIO) &&
 	    check_pdu(received_pdu)) {
@@ -2630,12 +2630,12 @@ static void radio_handler(const void *context)
 {
 	if (nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_ADDRESS)) {
 		nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_ADDRESS);
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 		if (dtm_inst.state == STATE_RECEIVER_TEST &&
 		    dtm_inst.anomaly_172_wa_enabled) {
 			nrfx_timer_disable(&dtm_inst.anomaly_timer);
 		}
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 	}
 
 	if (nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_END)) {
@@ -2649,7 +2649,7 @@ static void radio_handler(const void *context)
 	if (nrf_radio_event_check(NRF_RADIO, NRF_RADIO_EVENT_READY)) {
 		nrf_radio_event_clear(NRF_RADIO, NRF_RADIO_EVENT_READY);
 
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 		if (dtm_inst.state == STATE_RECEIVER_TEST &&
 		    dtm_inst.anomaly_172_wa_enabled) {
 			nrfx_timer_clear(&dtm_inst.anomaly_timer);
@@ -2657,7 +2657,7 @@ static void radio_handler(const void *context)
 				nrfx_timer_enable(&dtm_inst.anomaly_timer);
 			}
 		}
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */
 	}
 
 #if defined(RADIO_EVENTS_RSSIEND_EVENTS_RSSIEND_Msk)
@@ -2680,7 +2680,7 @@ static void dtm_timer_handler(nrf_timer_event_t event_type, void *context)
 	}
 }
 
-#if NRF52_ERRATA_172_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(52, 172)
 static void anomaly_timer_handler(nrf_timer_event_t event_type, void *context)
 {
 	switch (event_type) {
@@ -2760,4 +2760,4 @@ static void anomaly_timer_handler(nrf_timer_event_t event_type, void *context)
 		break;
 	}
 }
-#endif /* NRF52_ERRATA_172_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(52, 172) */

@@ -15,9 +15,9 @@
 #include <hal/nrf_lrcconf.h>
 #endif
 #include <nrfx.h>
-#if NRF54L_ERRATA_20_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54L, 20)
 #include <hal/nrf_power.h>
-#endif /* NRF54L_ERRATA_20_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54L, 20) */
 #if defined(NRF54LM20A_XXAA)
 #include <hal/nrf_clock.h>
 #endif /* defined(NRF54LM20A_XXAA) */
@@ -55,11 +55,11 @@ static void clock_init(void)
 		}
 	} while (err);
 
-#if NRF54L_ERRATA_20_PRESENT
-	if (nrf54l_errata_20()) {
+#if NRF_ERRATA_STATIC_CHECK(54L, 20)
+	if (NRF_ERRATA_DYNAMIC_CHECK(54L, 20)) {
 		nrf_power_task_trigger(NRF_POWER, NRF_POWER_TASK_CONSTLAT);
 	}
-#endif /* NRF54L_ERRATA_20_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54L, 20) */
 
 #if defined(NRF54LM20A_XXAA)
 	/* MLTPAN-39 */

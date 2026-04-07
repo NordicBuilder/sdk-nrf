@@ -28,9 +28,9 @@
 #include "fem_al/fem_al.h"
 #endif /* CONFIG_FEM */
 
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 #include <zephyr/drivers/mbox.h>
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 
 /* IEEE 802.15.4 default frequency. */
 #define IEEE_DEFAULT_FREQ         (5)
@@ -85,9 +85,9 @@
 #define TIMER_CC2_FEM_0 NRF_TIMER_CC_CHANNEL2
 #define TIMER_CC3_FEM_1 NRF_TIMER_CC_CHANNEL3
 #define TIMER_CC4_SWEEP_DUTY NRF_TIMER_CC_CHANNEL4
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 #define TIMER_CC7_ERRATA216 NRF_TIMER_CC_CHANNEL7
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 
 /* RX timeout counted from the last packet received. */
 #define RX_PACKET_TIMEOUT_MS 100
@@ -138,7 +138,7 @@ static void (**rx_timeout_cb)(void);
 static volatile bool cancel_request;
 static volatile bool test_is_running;
 
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 static const struct mbox_dt_spec on_channel =
 	MBOX_DT_SPEC_GET(DT_NODELABEL(cpurad_cpusys_errata216_mboxes), on_req);
 static const struct mbox_dt_spec off_channel =
@@ -150,7 +150,7 @@ static const struct mbox_dt_spec off_channel =
 #define HMPAN_216_DELAY_US (40)
 
 static K_SEM_DEFINE(errata_216_sem, 0, 1);
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 
 /**
  * @brief Send errata HMPAN-216 on request signal to SysCtrl
@@ -160,10 +160,10 @@ static K_SEM_DEFINE(errata_216_sem, 0, 1);
  *
  * @return 0 if successful, otherwise a negative error code
  */
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 static int errata_216_on_wait(void)
 {
-	if (!nrf54h_errata_216()) {
+	if (!NRF_ERRATA_DYNAMIC_CHECK(54H, 216)) {
 		return 0;
 	}
 
@@ -189,30 +189,30 @@ static int errata_216_on_wait(void)
 
 	return err;
 }
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 
 /**
  * @brief Send errata HMPAN-216 off request signal to SysCtrl
  *
  * @return 0 if successful, otherwise a negative error code
  */
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 static int errata_216_off(void)
 {
-	if (!nrf54h_errata_216()) {
+	if (!NRF_ERRATA_DYNAMIC_CHECK(54H, 216)) {
 		return 0;
 	}
 	return mbox_send_dt(&off_channel, NULL);
 }
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 
 /**
  * @brief Return to code execution after the required delay for errata HMPAN-216 has elapsed.
  */
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 static void errata_216_release(void)
 {
-	if (!nrf54h_errata_216()) {
+	if (!NRF_ERRATA_DYNAMIC_CHECK(54H, 216)) {
 		return;
 	}
 
@@ -221,7 +221,7 @@ static void errata_216_release(void)
 	nrfx_timer_disable(&timer);
 	nrf_timer_int_disable(timer.p_reg, ~0);
 }
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 
 #if CONFIG_FEM
 static struct radio_test_fem fem;
@@ -831,10 +831,10 @@ static void mltpan_6(nrf_radio_mode_t mode)
 #endif /* defined(NRF54L_SERIES) && CONFIG_HAS_HW_NRF_RADIO_IEEE802154 */
 }
 
-#if NRF53_ERRATA_117_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(53, 117)
 static void errata_117(nrf_radio_mode_t mode)
 {
-	if (!nrf53_errata_117()) {
+	if (!NRF_ERRATA_DYNAMIC_CHECK(53, 117)) {
 		return;
 	}
 
@@ -851,7 +851,7 @@ static void errata_117(nrf_radio_mode_t mode)
 {
 	ARG_UNUSED(mode);
 }
-#endif /* NRF53_ERRATA_117_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(53, 117) */
 
 static void radio_mode_set(NRF_RADIO_Type *reg, nrf_radio_mode_t mode)
 {
@@ -1101,11 +1101,11 @@ void radio_test_start(const struct radio_test_config *config)
 #endif /* CONFIG_FEM */
 
 	/* Execute nRF54H20 errata 216 workaround */
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 	if (errata_216_on_wait()) {
 		printk("Failed to send the nRF54H20 errata 216 on request to SysCtrl.\n");
 	}
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 
 	switch (config->type) {
 	case UNMODULATED_TX:
@@ -1164,11 +1164,11 @@ static void cancel(void)
 	endpoints_clear();
 	radio_disable();
 
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 	if (errata_216_off()) {
 		printk("Failed to send errata HMPAN-216 off.\n");
 	}
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 }
 
 void radio_test_cancel(enum radio_test_mode type)
@@ -1232,11 +1232,11 @@ static void rx_timeout_work_handler(struct k_work *work)
 {
 	radio_disable();
 	/* Send off signal for nRF54H20 errata HMPAN-216 */
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 	if (errata_216_off()) {
 		printk("Failed to send errata HMPAN-216 off\n");
 	}
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 	if (rx_timeout_cb != NULL && *rx_timeout_cb != NULL) {
 		(*rx_timeout_cb)();
 	}
@@ -1292,10 +1292,10 @@ static void timer_handler(nrf_timer_event_t event_type, void *context)
 		if (current_channel > channel_end) {
 			current_channel = channel_start;
 		}
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 	} else if (event_type == NRF_TIMER_EVENT_COMPARE7) { /* HMPAN-216 errata */
 		errata_216_release();
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 	} else if (event_type == NRF_TIMER_EVENT_COMPARE4) {
 		radio_start(false, true);
 	} else {
@@ -1327,11 +1327,11 @@ void on_radio_end(const struct radio_test_config *config)
 		radio_disable();
 
 		/* Send off signal for nRF54H20 errata HMPAN-216 */
-#if NRF54H_ERRATA_216_PRESENT
+#if NRF_ERRATA_STATIC_CHECK(54H, 216)
 		if (errata_216_off()) {
 			printk("Failed to send errata HMPAN-216 off\n");
 		}
-#endif /* NRF54H_ERRATA_216_PRESENT */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 216) */
 		config->params.modulated_tx.cb();
 	} else if (cancel_request) {
 		cancel();
