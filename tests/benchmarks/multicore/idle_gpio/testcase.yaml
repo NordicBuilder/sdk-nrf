@@ -82,8 +82,8 @@ tests:
       - nrf54h20dk/nrf54h20/cpuapp
     extra_args:
       - FILE_SUFFIX=s2ram
-      - EXTRA_DTC_OVERLAY_FILE="boards/wakeup_from_uart_pins.overlay"
-      - remote_EXTRA_DTC_OVERLAY_FILE="boards/wakeup_from_uart_pins.overlay"
+      - EXTRA_DTC_OVERLAY_FILE="wakeup_from_uart_pins.overlay"
+      - remote_EXTRA_DTC_OVERLAY_FILE="wakeup_from_uart_pins.overlay"
     harness: pytest
     harness_config:
       fixture: gpio_loopback
@@ -99,8 +99,8 @@ tests:
       - nrf54h20dk/nrf54h20/cpuapp
     extra_args:
       - FILE_SUFFIX=s2ram
-      - EXTRA_DTC_OVERLAY_FILE="boards/wakeup_from_uart_pins.overlay"
-      - remote_EXTRA_DTC_OVERLAY_FILE="boards/wakeup_from_uart_pins_gpiote0.overlay"
+      - EXTRA_DTC_OVERLAY_FILE="wakeup_from_uart_pins.overlay"
+      - remote_EXTRA_DTC_OVERLAY_FILE="wakeup_from_uart_pins_gpiote0.overlay"
     harness: pytest
     harness_config:
       fixture: gpio_loopback
@@ -116,8 +116,8 @@ tests:
       - nrf54h20dk/nrf54h20/cpuapp
     extra_args:
       - FILE_SUFFIX=s2ram
-      - EXTRA_DTC_OVERLAY_FILE="boards/wakeup_from_uart_pins.overlay"
-      - remote_EXTRA_DTC_OVERLAY_FILE="boards/wakeup_from_uart_pins_gpiote0.overlay"
+      - EXTRA_DTC_OVERLAY_FILE="wakeup_from_uart_pins.overlay"
+      - remote_EXTRA_DTC_OVERLAY_FILE="wakeup_from_uart_pins_gpiote0.overlay"
       - remote_CONFIG_TEST_GPIOTE_LATENCY_LOWPOWER=y
     harness: pytest
     harness_config:
@@ -135,8 +135,8 @@ tests:
     extra_args:
       - FILE_SUFFIX=s2ram
       - SB_CONFIG_RUN_PPRCORE=y
-      - EXTRA_DTC_OVERLAY_FILE="enable_ppr.overlay;boards/wakeup_from_uart_pins.overlay"
-      - remote_EXTRA_DTC_OVERLAY_FILE="boards/wakeup_from_uart_pins.overlay"
+      - EXTRA_DTC_OVERLAY_FILE="enable_ppr.overlay;wakeup_from_uart_pins.overlay"
+      - remote_EXTRA_DTC_OVERLAY_FILE="wakeup_from_uart_pins.overlay"
     harness: pytest
     harness_config:
       fixture: gpio_loopback
