@@ -118,6 +118,18 @@ static void nrf54hx_radio_trim(void)
 }
 #endif /* NRF_ERRATA_STATIC_CHECK(54H, 103) */
 
+#if NRF_ERRATA_STATIC_CHECK(54H, 229)
+static void nrf54hx_rssi_offset_adjust(void)
+{
+	if (NRF_ERRATA_DYNAMIC_CHECK(54H, 229)) {
+		/* Apply HMPAN-229 workaround for nRF54H series */
+		if (*(volatile uint32_t *)0x0FFFE46CUL == 0x0UL) {
+			*(volatile uint32_t *)0x5302C7D8UL = 0x00000004UL;
+		}
+	}
+}
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 229) */
+
 #else
 BUILD_ASSERT(false, "No Clock Control driver");
 #endif /* defined(CONFIG_CLOCK_CONTROL_NRF) */
@@ -152,6 +164,10 @@ int main(void)
 #if NRF_ERRATA_STATIC_CHECK(54H, 103)
 	nrf54hx_radio_trim();
 #endif /* NRF_ERRATA_STATIC_CHECK(54H, 103) */
+
+#if NRF_ERRATA_STATIC_CHECK(54H, 229)
+	nrf54hx_rssi_offset_adjust();
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 229) */
 
 	return 0;
 }

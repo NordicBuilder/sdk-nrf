@@ -1251,6 +1251,16 @@ int dtm_init(dtm_iq_report_callback_t callback)
 	}
 #endif /* NRF_ERRATA_STATIC_CHECK(54H, 103) */
 
+#if NRF_ERRATA_STATIC_CHECK(54H, 229)
+	if (NRF_ERRATA_DYNAMIC_CHECK(54H, 229)) {
+		/* Apply HMPAN-229 workaround for nRF54H series */
+		if (*(volatile uint32_t *)0x0FFFE46CUL == 0x0UL) {
+			*(volatile uint32_t *)0x5302C7D8UL = 0x00000004UL;
+		}
+	}
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 229) */
+
+
 	err = timer_init();
 	if (err) {
 		return err;
