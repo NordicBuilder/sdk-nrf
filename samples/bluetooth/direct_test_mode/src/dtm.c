@@ -1233,63 +1233,23 @@ int dtm_init(dtm_iq_report_callback_t callback)
 		return err;
 	}
 
-#if defined(CONFIG_SOC_SERIES_NRF54H)
-	/* Apply HMPAN-102 workaround for nRF54H series */
-	*(volatile uint32_t *)0x5302C7E4 =
-				(((*((volatile uint32_t *)0x5302C7E4)) & 0xFF000FFF) | 0x0012C000);
+#if NRF_ERRATA_STATIC_CHECK(54H, 103)
+	if (NRF_ERRATA_DYNAMIC_CHECK(54H, 103)) {
+		/* Apply HMPAN-103 workaround for nRF54H series*/
+		if ((*(volatile uint32_t *) 0x5302C8A0UL == 0x80000000UL) ||
+		    (*(volatile uint32_t *) 0x5302C8A0UL == 0x0058120EUL)) {
+			*(volatile uint32_t *) 0x5302C8A0UL = 0x0058090EUL;
+		}
 
-	/* Apply HMPAN-18 workaround for nRF54H series - load trim values*/
-	if (*(volatile uint32_t *) 0x0FFFE458 != TRIM_VALUE_EMPTY) {
-		*(volatile uint32_t *) 0x5302C734 = *(volatile uint32_t *) 0x0FFFE458;
+		*(volatile uint32_t *) 0x5302C8A4UL = 0x00F8AA5FUL;
+		*(volatile uint32_t *) 0x5302C8A8UL = 0x00C00030UL;
+		*(volatile uint32_t *) 0x5302C8ACUL = 0x00A80030UL;
+		*(volatile uint32_t *) 0x5302C7ACUL = 0x8672827AUL;
+		*(volatile uint32_t *) 0x5302C7B0UL = 0x7E768672UL;
+		*(volatile uint32_t *) 0x5302C7B4UL = 0x0406007EUL;
+		*(volatile uint32_t *) 0x5302C7E4UL = 0x0412C384UL;
 	}
-
-	if (*(volatile uint32_t *) 0x0FFFE45C != TRIM_VALUE_EMPTY) {
-		*(volatile uint32_t *) 0x5302C738 = *(volatile uint32_t *) 0x0FFFE45C;
-	}
-
-	if (*(volatile uint32_t *) 0x0FFFE460 != TRIM_VALUE_EMPTY) {
-		*(volatile uint32_t *) 0x5302C73C = *(volatile uint32_t *) 0x0FFFE460;
-	}
-
-	if (*(volatile uint32_t *) 0x0FFFE464 != TRIM_VALUE_EMPTY) {
-		*(volatile uint32_t *) 0x5302C740 = *(volatile uint32_t *) 0x0FFFE464;
-	}
-
-	if (*(volatile uint32_t *) 0x0FFFE468 != TRIM_VALUE_EMPTY) {
-		*(volatile uint32_t *) 0x5302C74C = *(volatile uint32_t *) 0x0FFFE468;
-	}
-
-	if (*(volatile uint32_t *) 0x0FFFE46C != TRIM_VALUE_EMPTY) {
-		*(volatile uint32_t *) 0x5302C7D8 = *(volatile uint32_t *) 0x0FFFE46C;
-	}
-
-	if (*(volatile uint32_t *) 0x0FFFE470 != TRIM_VALUE_EMPTY) {
-		*(volatile uint32_t *) 0x5302C840 = *(volatile uint32_t *) 0x0FFFE470;
-	}
-
-	if (*(volatile uint32_t *) 0x0FFFE474 != TRIM_VALUE_EMPTY) {
-		*(volatile uint32_t *) 0x5302C844 = *(volatile uint32_t *) 0x0FFFE474;
-	}
-
-	if (*(volatile uint32_t *) 0x0FFFE478 != TRIM_VALUE_EMPTY) {
-		*(volatile uint32_t *) 0x5302C848 = *(volatile uint32_t *) 0x0FFFE478;
-	}
-
-	if (*(volatile uint32_t *) 0x0FFFE47C != TRIM_VALUE_EMPTY) {
-		*(volatile uint32_t *) 0x5302C84C = *(volatile uint32_t *) 0x0FFFE47C;
-	}
-
-	/* Apply HMPAN-103 workaround for nRF54H series*/
-	if ((*(volatile uint32_t *) 0x5302C8A0 == 0x80000000) ||
-		(*(volatile uint32_t *) 0x5302C8A0 == 0x0058120E)) {
-		*(volatile uint32_t *) 0x5302C8A0 = 0x0058090E;
-	}
-
-	*(volatile uint32_t *) 0x5302C8A4 = 0x00F8AA5F;
-	*(volatile uint32_t *) 0x5302C7AC = 0x8672827A;
-	*(volatile uint32_t *) 0x5302C7B0 = 0x7E768672;
-	*(volatile uint32_t *) 0x5302C7B4 = 0x0406007E;
-#endif /* defined(CONFIG_SOC_SERIES_NRF54H) */
+#endif /* NRF_ERRATA_STATIC_CHECK(54H, 103) */
 
 	err = timer_init();
 	if (err) {
