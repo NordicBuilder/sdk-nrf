@@ -32,6 +32,7 @@ int main(void)
 		NRF_LRCCONF010, 0,
 		(nrf_lrcconf_clk_src_t)(FLL16M_MODE_OPEN_LOOP & FLL16M_MODE_LOOP_MASK), false);
 	nrf_lrcconf_task_trigger(NRF_LRCCONF010, NRF_LRCCONF_TASK_CLKSTART_0);
+	soc_lrcconf_poweron_release((sys_snode_t *)NRF_LRCCONF010, NRF_LRCCONF_POWER_MAIN);
 
 	return 0;
 }
