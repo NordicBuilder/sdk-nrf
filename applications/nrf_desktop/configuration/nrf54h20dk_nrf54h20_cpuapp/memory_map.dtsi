@@ -37,7 +37,7 @@
 		};
 
 		/* Leave free space at the end of the slot0_partition that can be used to increase
-		 * the existing application or radio partition. Optimizining the size of the
+		 * the existing application or radio partition. Optimizing the size of the
 		 * application and radio partition results in a smaller DFU package and faster DFU
 		 * transfer.
 		 */
@@ -57,13 +57,13 @@
 		};
 
 		/* Leave free space at the end of the slot1_partition that can be used to increase
-		 * the existing application or radio partition. Optimizining the size of the
+		 * the existing application or radio partition. Optimizing the size of the
 		 * application and radio partition results in a smaller DFU package and faster DFU
 		 * transfer.
 		 */
 
-		storage_partition: partition@1ca000 {
-			reg = <0x1ca000 DT_SIZE_K(40)>;
+		storage_partition: partition@1c8000 {
+			reg = <0x1c8000 DT_SIZE_K(40)>;
 		};
 
 		periphconf_partition: partition@1d2000 {
